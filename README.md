@@ -21,7 +21,7 @@ python server.py
 ```
 source ./camera/bin/activate
 cd app
-python camera.py
+python video.py
 ```
 
 ## Environment Setting
