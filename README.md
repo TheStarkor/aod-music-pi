@@ -1,5 +1,29 @@
 # aod-music-pi
 
+## Start APP
+
+### Environment Setting
+```
+pip install virtualenv
+virtualenv camera
+source ./camera/bin/activate
+pip install -r requirements.txt
+```
+
+### Start Server
+```
+source ./camera/bin/activate
+cd app
+python server.py
+```
+
+### Run App
+```
+source ./camera/bin/activate
+cd app
+python camera.py
+```
+
 ## Environment Setting
 
 ### Install ReSpeaker 4 Mic Array dirver
