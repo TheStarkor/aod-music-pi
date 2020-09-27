@@ -15,31 +15,23 @@ colors = {'C': (0, 0, 255),
           'G': (255, 0, 0),
           'A': (51, 0, 29),
           'B': (128, 0, 128)}
+sizes = {'s': 10,
+         'm': 15,
+         'l': 20}
 
 class Ball(object):
-    def __init__(self, x, y, center_x, center_y, color):
+    def __init__(self, x, y, center_x, center_y, color, size):
         self.x = x
-        self.y = y - random.randint(-60, 60)
+        self.y = y - random.randint(-30, 30)
         self.center_x = center_x 
         self.origin_y = center_y * 2 
-        
         self.dx = (self.center_x - self.x) // 40
-
-        # if (self.center_x > self.x):
-        #     self.dx = (self.center_x - self.x) // 40
-        # else:
-        #     self.dx = (self.x - self.center_x) // 40
-        
         self.dy = (self.origin_y - self.y) // 40
         self.color = color
+        self.size = size
         print(self.dx, self.dy)
 
     def move(self):
-        # if (self.center_x > self.x):
-        #     self.x = self.x + self.dx
-        # else:
-        #     self.x = self.x - self.dx
-        
         self.x = self.x + self.dx
         self.y = self.y + self.dy
 
@@ -61,17 +53,17 @@ class KivyCamera(Image):
         y = center_y - (((-1) * (abs(res['direction'] - 270) * (center_y//90)))) - 100
         print(x, y)
 
-        new_ball = Ball(x, y, center_x, center_y, colors[res['scale']])
+        new_ball = Ball(x, y, center_x, center_y, colors[res['scale']], sizes[res['size']])
         balls.append(new_ball)
 
         if ret:
             for ball in balls:
-                frame = cv2.circle(frame, (ball.x, ball.y), 10, ball.color, -1)
+                frame = cv2.circle(frame, (ball.x, ball.y), ball.size, ball.color, -1)
                 ball.move()
                 if (ball.x > frame.shape[1] or ball.y > frame.shape[0]):
                     balls.remove(ball)
 
-            text = f'direction: {str(res["direction"])} scale: {res["scale"]}'
+            text = f'direction: {str(res["direction"])} scale: {res["scale"]} sound: {res["size"]}'
             # print(text)
 
             cv2.putText(frame, text, (10, 30), cv2.FONT_ITALIC, 1, (255, 255, 255), 2, cv2.LINE_AA)
