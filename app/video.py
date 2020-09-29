@@ -6,6 +6,12 @@ import cv2
 import requests
 import time
 import random
+import argparse
+
+END_COUNT = 100   # 목적지 까지 점 갯수
+TARGET_X = 100    # 목적지 x 좌표
+TARGET_Y = 100    # 목적지 y 좌표
+ALPHA = 0.1       # 투명도
 
 balls = []
 colors = {'C': (0, 0, 255), 
@@ -20,20 +26,34 @@ sizes = {'s': 10,
          'l': 20}
 
 class Ball(object):
-    def __init__(self, x, y, center_x, center_y, color, size):
+    def __init__(self, x, y, target_x, target_y, color, size):
         self.x = x
         self.y = y - random.randint(-30, 30)
-        self.center_x = center_x 
-        self.origin_y = center_y * 2 
-        self.dx = (self.center_x - self.x) // 40
-        self.dy = (self.origin_y - self.y) // 40
+        self.target_x = target_x 
+        self.target_y = target_y
+        self.dx = (self.target_x - self.x) // END_COUNT
+        self.dy = (self.target_y - self.y) // END_COUNT
         self.color = color
         self.size = size
-        print(self.dx, self.dy)
 
     def move(self):
         self.x = self.x + self.dx
         self.y = self.y + self.dy
+
+    def delete(self):
+        margin = 4
+        if (self.size==10):
+            margin = 4
+        elif (self.size==15):
+            margin = 3
+        elif (self.size==20):
+            margin = 2
+
+        if (self.target_x - margin < self.x < self.target_x + margin):
+            return True
+        if (self.target_y - margin < self.y < self.target_y + margin):
+            return True
+        return False
 
 class KivyCamera(Image):
     def __init__(self, capture, fps, **kwargs):
@@ -43,7 +63,6 @@ class KivyCamera(Image):
 
     def update(self, dt):
         res = requests.get('http://localhost:5000').json()
-        print(res)
         print(res['scale'])
 
         ret, frame = self.capture.read()
@@ -51,16 +70,19 @@ class KivyCamera(Image):
 
         x = center_x + ((res['direction'] - 270) * (center_x//90))
         y = center_y - (((-1) * (abs(res['direction'] - 270) * (center_y//90)))) - 100
-        print(x, y)
+        print(f'center_x: {center_x}, center_y: {center_y}')
 
-        new_ball = Ball(x, y, center_x, center_y, colors[res['scale']], sizes[res['size']])
+        new_ball = Ball(x, y, TARGET_X, TARGET_Y, colors[res['scale']], sizes[res['size']])
         balls.append(new_ball)
 
         if ret:
             for ball in balls:
-                frame = cv2.circle(frame, (ball.x, ball.y), ball.size, ball.color, -1)
+                overlay = frame.copy()
+                cv2.circle(overlay, (ball.x, ball.y), ball.size, ball.color, -1)
+                frame = cv2.addWeighted(overlay, ALPHA, frame, 1 - ALPHA, 0)
+
                 ball.move()
-                if (ball.x > frame.shape[1] or ball.y > frame.shape[0]):
+                if (ball.delete()):
                     balls.remove(ball)
 
             text = f'direction: {str(res["direction"])} scale: {res["scale"]} sound: {res["size"]}'
