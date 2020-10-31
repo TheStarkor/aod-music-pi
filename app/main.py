@@ -11,7 +11,7 @@ import argparse
 END_COUNT = 100   # 목적지 까지 점 갯수
 TARGET_X = 100    # 목적지 x 좌표
 TARGET_Y = 100    # 목적지 y 좌표
-ALPHA = 0.1       # 투명도
+ALPHA = 0.9       # 투명도
 
 balls = []
 colors = {'C': (0, 0, 255), 
@@ -63,6 +63,11 @@ class KivyCamera(Image):
 
     def update(self, dt):
         res = requests.get('http://localhost:5000').json()
+        # res = {
+        #     "scale": 'D',
+        #     "size": 's',
+        #     "direction": 200
+        # }
         print(res['scale'])
 
         ret, frame = self.capture.read()
@@ -73,7 +78,7 @@ class KivyCamera(Image):
         print(f'center_x: {center_x}, center_y: {center_y}')
 
         new_ball = Ball(x, y, TARGET_X, TARGET_Y, colors[res['scale']], sizes[res['size']])
-        balls.append(new_ball)
+        balls.insert(0, new_ball)
 
         if ret:
             for ball in balls:
