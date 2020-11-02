@@ -38,7 +38,7 @@ def main():
                         frames = np.concatenate(chunks)
                         direction = mic.get_direction(frames)
                         pixel_ring.set_direction(direction)
-                        res = requests.post('http://localhost:7000/api', data={'location': int(direction)}).json()
+                        res = requests.post('http://13.209.217.37/api', data={'location': int(direction)}).json()
                         print('\n{}'.format(int(direction)))
 
                     speech_count = 0
