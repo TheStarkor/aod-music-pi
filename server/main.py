@@ -46,9 +46,12 @@ def main():
                         frames = np.concatenate(chunks)
                         direction = mic.get_direction(frames)
                         pixel_ring.set_direction(direction)
-                        res = requests.post('http://13.209.217.37/api', data={'location': int(direction), 'volume': int(rms), 'freq': int(val)}).json()
-                        print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val)))
-
+                        try:
+                            res = requests.post('http://13.209.217.37/api', data={'location': int(direction), 'volume': int(rms), 'freq': int(val)}).json()
+                            print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val)))
+                        except:
+                            print('ready...')
+                        
                     speech_count = 0
                     chunks = []
 
