@@ -39,7 +39,7 @@ def main():
                 fft = fft[:int(len(fft)/2)]
                 freq = np.fft.fftfreq(CHUNK, 1.0/RATE)
                 freq = freq[:int(len(freq)/2)]
-                val = fft[np.where(freq>TARGET)[0][0]]
+                val = freq[np.where(fft == np.max(fft))[0][0]] + 1
 
                 chunks.append(chunk)
                 if len(chunks) == doa_chunks:
@@ -48,7 +48,7 @@ def main():
                         direction = mic.get_direction(frames)
                         pixel_ring.set_direction(direction)
                         res = requests.post('http://13.209.217.37/api', data={'location': int(direction), 'volume': int(rms)}).json()
-                        print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val))))
+                        print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val)))
 
                     speech_count = 0
                     chunks = []
