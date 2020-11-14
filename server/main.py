@@ -34,16 +34,15 @@ def main():
                 else:
                     sys.stdout.write('0')
 
-                rms = audioop.rms(chunk, 2)
-                fft = abs(np.fft.fft(chunk).real)
-                fft = fft[:int(len(fft)/2)]
-                freq = np.fft.fftfreq(CHUNK, 1.0/RATE)
-                freq = freq[:int(len(freq)/2)]
-                val = freq[np.where(fft == np.max(fft))[0][0]] + 1
-
                 chunks.append(chunk)
                 if len(chunks) == doa_chunks:
                     if speech_count > (doa_chunks / 2):
+                        rms = audioop.rms(chunk, 2)
+                        fft = abs(np.fft.fft(chunk).real)
+                        fft = fft[:int(len(fft)/2)]
+                        freq = np.fft.fftfreq(CHUNK, 1.0/RATE)
+                        freq = freq[:int(len(freq)/2)]
+                        val = freq[np.where(fft == np.max(fft))[0][0]] + 1
                         frames = np.concatenate(chunks)
                         direction = mic.get_direction(frames)
                         pixel_ring.set_direction(direction)
