@@ -10,26 +10,14 @@ from pixel_ring import pixel_ring
 
 import requests
 
-CHUNK = 1024
+CHUNK = 4096
 TARGET = 2100
-FORMAT = pyaudio.paInt16
-RECORD_SECONDS = 120
-WAVE_OUTPUT_FILENAME = "output.wav"
 RATE = 16000
 CHANNELS = 4
 VAD_FRAMES = 10     # ms
-DOA_FRAMES = 200    # ms
-
-p = pyaudio.PyAudio()
+DOA_FRAMES = 500    # ms
 
 def main():
-
-    tream = p.open(format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=CHUNK)
-
     vad = webrtcvad.Vad(3)
 
     speech_count = 0
@@ -46,13 +34,8 @@ def main():
                 else:
                     sys.stdout.write('0')
 
-                sys.stdout.flush()
-
-                data = stream.read(CHUNK)
-                rms = audioop.rms(data, 2)
-
-                data = np.fromstring(data)
-                fft = abs(np.fft.fft(data).real)
+                rms = audioop.rms(chunk, 2)
+                fft = abs(np.fft.fft(chunk).real)
                 fft = fft[:int(len(fft)/2)]
                 freq = np.fft.fftfreq(CHUNK, 1.0/RATE)
                 freq = freq[:int(len(freq)/2)]
@@ -64,8 +47,8 @@ def main():
                         frames = np.concatenate(chunks)
                         direction = mic.get_direction(frames)
                         pixel_ring.set_direction(direction)
-                        res = requests.post('http://13.209.217.37/api', data={'location': int(direction), 'volume': int(rms), 'freq': int(val)}).json()
-                        print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val)))
+                        res = requests.post('http://13.209.217.37/api', data={'location': int(direction), 'volume': int(rms)}).json()
+                        print('\ndirection: {} volume: {} frequency: {}'.format(int(direction), int(rms), int(val))))
 
                     speech_count = 0
                     chunks = []
